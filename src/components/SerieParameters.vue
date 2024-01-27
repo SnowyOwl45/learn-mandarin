@@ -5,9 +5,38 @@
     <p>Actual serie configuration: </p>
     
     <p>Mode: {{ modeToDisplay }}</p>
-    <p>Difficulty: 
-      <span :style="{ 'color': difficultyColor }">{{ serieParams.difficulty }}</span>
-    </p>
+    <p>Difficulty: </p>
+
+    <input
+      style="accentColor: green;"
+      type="radio" 
+      id="easy" 
+      value="easy" 
+      :checked="serieParams.difficulty === 'easy'" 
+      @change="this.$emit('difficultyChange', `easy`)" 
+    />
+    <label for="easy" style="color: green">easy</label>
+
+    <input 
+      style="accentColor: orange;"
+      type="radio" 
+      id="medium" 
+      value="medium"
+      :checked="serieParams.difficulty === 'medium'" 
+      @change="this.$emit('difficultyChange', `medium`)" 
+    />
+    <label for="medium" style="color: orange">medium</label>
+
+    <input
+      style="accentColor: red;"
+      type="radio" 
+      id="hard" 
+      value="hard"
+      :checked="serieParams.difficulty === 'hard'" 
+      @change="this.$emit('difficultyChange', `hard`)" 
+    />
+    <label for="hard" style="color: red">hard</label>
+
     <p>Type: {{ serieParams.type }}</p>
     <p>Number of Question: {{ serieParams.numberOfQuestions }}</p>
   </div>
@@ -27,7 +56,7 @@ export default {
           numberOfQuestions: rawProps.numberOfQuestions,
         }
       }
-    },
+    },   
   },
   computed: {
     modeToDisplay() {
@@ -37,18 +66,6 @@ export default {
       }
       return "Super mode"
     },
-    difficultyToDisplay() {
-      const difficulty = this.serieParams.difficulty
-      if(difficulty === "hard") return "Hard"
-      return "Hard"
-    },
-    difficultyColor() {
-      const difficulty = this.serieParams.difficulty
-      if(difficulty === "hard") return "red"
-      else if(difficulty === "medium") return "orange"
-      else if(difficulty === "easy") return "green"
-      return "black"
-    }
   }
 }
 </script>

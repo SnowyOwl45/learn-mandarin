@@ -1,7 +1,11 @@
 <template>
   <h1>Learn Mandarin</h1>
   <div v-if="!serieIsInProgress" class="serie_parameters">
-    <SerieParameters :serieParams="serieParams"></SerieParameters>
+    <SerieParameters 
+      :serieParams="serieParams"
+      @difficultyChange="onChangeDifficulty"
+    >
+    </SerieParameters>
     <Button id="startSerieButton" @click="startSerie" text="Start" bgColor="green"></Button>
   </div>
   <div v-if="serieIsInProgress" class="bilan">
@@ -61,6 +65,9 @@ export default {
     },
     endSerie() {
       this.serieIsInProgress = false
+    },
+    onChangeDifficulty(newDifficulty) {
+      this.serieParams.difficulty = newDifficulty
     },
     foundCorrectAnswer() {
       if(this.actualSerie.actualQuestion + 1 > this.serieParams.numberOfQuestions) {
