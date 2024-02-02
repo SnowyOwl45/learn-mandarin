@@ -47,6 +47,7 @@ export default {
   background: #dddddd;
   border-radius: 5px;
   padding: 20px;
+  cursor: pointer;
 }
 
 .choice.correctSelected {

@@ -1,12 +1,16 @@
 <template>
   <h1>Learn Mandarin</h1>
   <div v-if="!serieIsInProgress" class="serie_parameters">
+    
     <SerieParameters 
       :serieParams="serieParams"
+      @modeChange="onChangeMode"
       @difficultyChange="onChangeDifficulty"
+      @numberQuestionChange="onChangeQuestionsNumber"
     >
     </SerieParameters>
-    <Button id="startSerieButton" @click="startSerie" text="Start" bgColor="green"></Button>
+    
+    <Button id="startSerieButton" @click="startSerie" text="Start" bgColor="#27ae60"></Button>
   </div>
   <div v-if="serieIsInProgress" class="bilan">
     <div>{{ actualSerie.actualQuestion }} / {{ serieParams.numberOfQuestions }}</div>
@@ -14,9 +18,13 @@
   </div>
   <div v-if="serieIsInProgress" class="questionsBloc">
     <Question :serieMode="serieParams.mode" :text="getQuestion"></Question>
-    <Choices :choices="getChoices" @foundCorrectAnswer="foundCorrectAnswer"></Choices>
+    <div v-if="showChoices" class="choicesContainer">
+      <Choices :choices="getChoices" @foundCorrectAnswer="goToNextQuestion"></Choices>
+    </div>
+    <div v-else>
+      <DrawingQuestion :character="getChararter" @hasAnsweredQuestion="hasAnsweredQuestion"/>
+    </div>
   </div>
-  <!-- <div>{{ hsk1[0].chinese }} - {{ hsk1[0].pinyin }} - {{ hsk1[0].trad.en }}</div> -->
 </template>
 
 <script>
@@ -24,6 +32,7 @@ import Button from './components/Button.vue'
 import Question from './components/Question.vue'
 import Choices from './components/Choices.vue'
 import SerieParameters from './components/SerieParameters.vue'
+import DrawingQuestion from './components/DrawingQuestion.vue'
 
 export default {
   name: 'App',
@@ -31,7 +40,7 @@ export default {
     return {
       serieIsInProgress: false,
       serieParams: {
-        mode: "englishToPinyin", //pinyinToEnglish
+        mode: "englishToPinyin", //pinyinToEnglish - pinyinToDrawing - englishToPinyin
         type: "QCM",
         difficulty: "hard",
         numberOfQuestions: 3,
@@ -63,14 +72,34 @@ export default {
       this.actualSerie = { actualQuestion: 1, content: newSerie }
       this.serieIsInProgress = true
     },
+    hasAnsweredQuestion(autoValidationAnswer) {
+      const isCorrect = autoValidationAnswer === "correct"
+      this.goToNextQuestion()
+    },
     endSerie() {
       this.serieIsInProgress = false
     },
     onChangeDifficulty(newDifficulty) {
       this.serieParams.difficulty = newDifficulty
     },
-    foundCorrectAnswer() {
-      if(this.actualSerie.actualQuestion + 1 > this.serieParams.numberOfQuestions) {
+    onChangeMode(newMode) {
+      if(["englishToPinyin", "pinyinToDrawing", "pinyinToEnglish"].includes(newMode)) {
+        this.serieParams.mode = newMode
+      }
+    },
+    onChangeQuestionsNumber(newNumber) {
+      const integerRegex = /^\d+$/
+      const isIntegerStr = integerRegex.test(newNumber)
+      if(isIntegerStr) {
+        const newNb = parseInt(newNumber) <= 100 ? parseInt(newNumber) : 100
+        this.serieParams.numberOfQuestions = newNb
+      }
+    },
+    goToNextQuestion() {
+      const { actualQuestion } = this.actualSerie
+      const { numberOfQuestions } = this.serieParams
+      const hasReachedLastQuestion = actualQuestion >= numberOfQuestions
+      if(hasReachedLastQuestion) {
         this.serieIsInProgress = false
       } else {
         this.actualSerie.actualQuestion++
@@ -82,7 +111,7 @@ export default {
       else if(diff === "easy") return 2
       else return 4
     },
-    generateSerie(serieParams) {
+    generateClassicSerie(serieParams) {
       const { numberOfQuestions, difficulty } = serieParams
       const allWordsNb = this.hsk1.length
       return Array(numberOfQuestions).fill(true).map(() => {
@@ -112,8 +141,28 @@ export default {
         return { question: question, choices: shuffledChoices }
       })
     },
+    generateDrawingSerie(serieParams) {
+      const { numberOfQuestions } = serieParams
+      const allWordsNb = this.hsk1.length
+      return Array(numberOfQuestions).fill(true).map(() => {
+        const correctAnswerIndex = Math.floor(Math.random() * allWordsNb)
+        const correctLine = this.hsk1[correctAnswerIndex]
+        return { question: `${correctLine.pinyin}`, correctChinese: `${correctLine.chinese}` }
+      })
+    },
+    generateSerie(serieParams) {
+      const { mode } = serieParams
+      if(mode === "englishToPinyin") {
+        return this.generateClassicSerie(serieParams)
+      } else if(mode === "pinyinToDrawing") {
+        return this.generateDrawingSerie(serieParams)
+      }
+    },
   },
   computed: {
+    showChoices() {
+      return this.serieParams.mode === 'englishToPinyin'
+    },
     getChoices() {
       const { actualQuestion, content } = this.actualSerie
       if(actualQuestion <= 0) return []
@@ -121,15 +170,21 @@ export default {
     },
     getQuestion() { 
       const { actualQuestion, content } = this.actualSerie
-      if(actualQuestion <= 0) return ""
+      if(actualQuestion <= 0 || content === undefined || content.length < actualQuestion) return ""
       return content[actualQuestion -1].question
+    },
+    getChararter() { 
+      const { actualQuestion, content } = this.actualSerie
+      if(actualQuestion <= 0 || content === undefined || content.length < actualQuestion) return ""
+      return content[actualQuestion -1].correctChinese
     },
   },
   components: {
     Button,
     Question,
     Choices,
-    SerieParameters
+    SerieParameters,
+    DrawingQuestion
   }
 }
 </script>

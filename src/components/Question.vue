@@ -5,6 +5,9 @@
   <p v-else-if="serieMode === 'pinyinToEnglish'" class="question">
     What is the meaning of this pinyin ?
   </p>
+  <p v-else-if="serieMode === 'pinyinToDrawing'" class="question">
+    Draw the chinese character for this pinyin :
+  </p>
   <p v-else class="question">
     What is the corresponding translation ?
   </p>
@@ -19,7 +22,11 @@ export default {
     text: String,
     serieMode: {
       validator(value) {
-        return ['englishToPinyin', 'pinyinToEnglish'].includes(value)
+        return [
+          'englishToPinyin', 
+          'pinyinToEnglish',
+          'pinyinToDrawing',
+        ].includes(value)
       }
     },
   }
