@@ -1,19 +1,20 @@
 <template>
   <div id="serieParametersContainer">
-    <h1>Parameters</h1>
-    <p>Actual serie configuration: </p>
-    
-    <p>Mode: {{ modeToDisplay }}</p>
-    <select
-      id="serieModeSelector"
-      @change="onChangeMode($event)"
-    >
-      <option value="englishToPinyin">English to pinyin</option>
-      <option value="pinyinToDrawing">Pinyin to drawing</option>
-      <!-- <option value="pinyinToEnglish">Pinyin to english</option> -->
-    </select>
-    <div id="difficultyContainer" v-if="showDifficulty">
-      <p>Difficulty: </p>
+    <h1>Configure your quiz:</h1>
+    <section id="modeContainer">
+      <p><span class="underline">Mode:</span> {{ modeToDisplay }}</p>
+      <select
+        id="serieModeSelector"
+        @change="onChangeMode($event)"
+      >
+        <option value="englishToPinyin">English to pinyin</option>
+        <option value="pinyinToDrawing">Pinyin to drawing</option>
+        <!-- <option value="pinyinToEnglish">Pinyin to english</option> -->
+      </select>
+    </section>
+
+    <section id="difficultyContainer" v-if="showDifficulty">
+      <p><span class="underline">Difficulty:</span></p>
   
       <input
         style="accentColor: green;"
@@ -44,11 +45,11 @@
         @change="this.$emit('difficultyChange', `hard`)" 
       />
       <label for="hard" style="color: red">hard</label>
-    </div>
+    </section>
 
     <!-- <p>Type: {{ serieParams.type }}</p> -->
-    <div id="nbQuestionContainer">
-      <p style="margin: 0px">Number of Question:</p>
+    <section id="nbQuestionContainer">
+      <p><span class="underline">Number of Question:</span></p>
       <input 
         type="number" 
         id="nbQuestion"
@@ -57,7 +58,7 @@
         :value="serieParams.numberOfQuestions"
         @input="event => this.$emit('numberQuestionChange', event.target.value)" 
       />
-    </div>
+    </section>
   </div>
 </template>
 
@@ -103,15 +104,10 @@ export default {
 </script>
 
 <style scoped>
-/* button {
-  color: white;
-  margin: 10px;
-  padding: 10px;
-  background: #29a851;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-} */
+
+#serieParametersContainer {
+  margin-top: 5rem;
+}
 
 #nbQuestionContainer {
   display: flex; 
@@ -120,9 +116,20 @@ export default {
   align-items: center;
   gap: 5px;
 }
+.underline {
+  text-decoration: underline;
+}
 
 #serieModeSelector {
   padding: 10px; 
+}
+
+p {
+  margin: 0px;
+}
+
+section {
+  margin: 20px 0px;
 }
 
 input[type=number] {
